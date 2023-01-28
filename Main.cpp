@@ -20,7 +20,7 @@ int main() {
 		2, 3, 0,
 	};
 	
-	int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
+	int SCREEN_WIDTH = 1440, SCREEN_HEIGHT = 900;
 
 
 	//glfwSetErrorCallback(errorCallbackFunction);
@@ -30,7 +30,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window." << std::endl;
 		glfwTerminate();
@@ -75,26 +75,14 @@ int main() {
 	glCreateTextures(GL_TEXTURE_2D, 1, &screenTexture);
 	glTextureParameteri(screenTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTextureParameteri(screenTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(screenTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(screenTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(screenTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTextureParameteri(screenTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTextureStorage2D(screenTexture, 1, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBindImageTexture(0, screenTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	// Shaders
 	Shader shader = Shader("default.vert", "default.frag");
 	ComputeShader computeShader = ComputeShader("default.comp");
-
-	/*std::string computeSourceString = get_file_contents("default.comp");
-	const char* computeSource = computeSourceString.c_str();
-
-	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-	glShaderSource(computeShader, 1, &computeSource, NULL);
-	glCompileShader(computeShader);
-
-	GLuint computeProgram = glCreateProgram();
-	glAttachShader(computeProgram, computeShader);
-	glLinkProgram(computeProgram);*/
-
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -105,9 +93,6 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		computeShader.Activate(SCREEN_WIDTH, SCREEN_HEIGHT, 1, GL_ALL_BARRIER_BITS);
-		//glUseProgram(computeProgram);
-		//glDispatchCompute(SCREEN_WIDTH, SCREEN_HEIGHT, 1);
-		//glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 		shader.Activate();
 		glBindTextureUnit(0, screenTexture);
