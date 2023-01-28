@@ -2,21 +2,87 @@
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout (rgba32f, binding = 0) uniform image2D screen;
 
-struct Agent {
-	vec2 position;
-	float angle;
-};
+uniform double scale;
+uniform vec2 position;
 
-//RWStructuredBuffer<Agent> agents;
 
-uint hash(uint state) {
-	state ^= 2747636419u;
-	state *= 2654435769u;
-	state ^= state >> 16;
-	state *= 2654435769u;
-	state ^= state >> 16;
-	state *= 2654435769u;
-	return state;
+//uint hash(uint state) {
+//	state ^= 2747636419u;
+//	state *= 2654435769u;
+//	state ^= state >> 16;
+//	state *= 2654435769u;
+//	state ^= state >> 16;
+//	state *= 2654435769u;
+//	return state;
+//}
+
+
+vec2 mandelIterate(vec2 num, vec2 c) {
+    float real;
+    float imag;
+    real = num.x * num.x - num.y * num.y + c.x;
+    imag = 2 * num.x * num.y + c.y;
+    return vec2(real, imag);
+}
+
+float magnitude(vec2 complex) {
+    return sqrt(complex.x * complex.x + complex.y * complex.y);
+}
+
+
+// float *r, float *g, float *b, float h, float s, float v 
+vec3 HSVtoRGB(vec3 hsv) {
+    float h = hsv.x;
+    float s = hsv.y;
+    float v = hsv.z;
+    float r = 0,g = 0,b = 0;
+
+    int i;
+    float f, p, q, t;
+    if( s == 0 ) {
+        // achromatic (grey)
+        r = g = b = v;
+        return vec3(r, g, b);
+    }
+    h /= 60;            // sector 0 to 5
+    i = int(floor(h));
+    f = h - i;          // factorial part of h
+    p = v * ( 1 - s );
+    q = v * ( 1 - s * f );
+    t = v * ( 1 - s * ( 1 - f ) );
+    switch( i ) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        default:        // case 5:
+            r = v;
+            g = p;
+            b = q;
+            break;
+    }
+    return vec3(r, g, b);
 }
 
 void main() {
@@ -27,15 +93,41 @@ void main() {
 	//gl_GlobalInvocationID
 	//gl_LocalInvocationIndex
 
-	//float red = (1.0 * gl_WorkGroupID.x) / gl_NumWorkGroups.x;
-	//float blue = (1.0 * gl_WorkGroupID.y) / gl_NumWorkGroups.y;
+	//uint maxnum = 0;
+	//maxnum -= 1;
+	//float num = (1.0 *  hash(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x)) / maxnum;
+	//vec4 pixel = vec4(vec3(num), 0.0);
 
-	//vec4 pixel = vec4(red, 0.0, blue, 1.0);
-	uint maxnum = 0;
-	maxnum -= 1;
-	float num = (1.0 *  hash(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x)) / maxnum;
-	vec4 pixel = vec4(vec3(num), 0.0);
 	ivec2 pixel_coords = ivec2(gl_WorkGroupID.xy);
+
+	//float x = ((1.0f * gl_WorkGroupID.x) / (gl_NumWorkGroups.x / 2) - 1.0f) / scale - position.x;
+	//float y = (1.0f - (1.0f * gl_WorkGroupID.y) / (gl_NumWorkGroups.y / 2)) / scale - position.y;
+
+    double x = ((1.0 * gl_WorkGroupID.x) / (gl_NumWorkGroups.x / 2) - 1.0) / scale - position.x;
+	double y = (1.0 - (1.0 * gl_WorkGroupID.y) / (gl_NumWorkGroups.y / 2)) / scale - position.y;
+
+	vec2 point_coords = vec2(x, y);
+
+    vec2 mandelNum = vec2(0.0f, 0.0f);
+    int i = 0;
+    while (i <= 240) {
+        mandelNum = mandelIterate(mandelNum, point_coords);
+        if (magnitude(mandelNum) > 2.0f) {
+            break;
+        }
+        i++;
+    }
+
+    float color = 1.0f * i / 255;
+    //vec3 rgb = HSVtoRGB(vec3(color, 0.5 + color / 2, 1.0f - color));
+
+	//float r = 2 * sin(mod(abs(point_coords.x), 0.5f) * 3.14159);
+	//float b = 2 * sin(mod(abs(point_coords.y), 0.5f) * 3.14159);
+
+	
+
+	//vec4 pixel = vec4(point_coords.x, 0.0f, point_coords.y, 1.0f);
+	vec4 pixel = vec4(vec3(1.0f - color), 1.0f);
 
 	imageStore(screen, pixel_coords, pixel);
 }

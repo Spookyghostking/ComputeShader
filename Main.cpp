@@ -3,9 +3,17 @@
 #include "fileReader.h"
 #include "Shader.h"
 #include "ComputeShader.h"
+#include "InputHandler.h"
 
 static void errorCallbackFunction(int errorCode, const char* errorMessage) {
 	std::cout << "Glfw error " << errorCode << ": " << errorMessage << std::endl;
+}
+
+void getPosScale(InputHandler& inputHandler, double& posx, double& posy, double& scale) {
+	posx = inputHandler.posx;
+	posy = inputHandler.posy;
+	scale = inputHandler.scale;
+	//std::cout << "x: " << posx << "\t" << "y: " << posy << std::endl;
 }
 
 int main() {
@@ -84,15 +92,26 @@ int main() {
 	Shader shader = Shader("default.vert", "default.frag");
 	ComputeShader computeShader = ComputeShader("default.comp");
 
+	double scale = 1.0f;
+	double posx = 0.0f;
+	double posy = 0.0f;
+	InputHandler inputHandler = InputHandler(window, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	while (!glfwWindowShouldClose(window)) {
 		// inputs
+		inputHandler.doInputs(window);
+		getPosScale(inputHandler, posx, posy, scale);
 
 		// rendering
 		glClearColor(0.1, 0.05, 0.12, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		computeShader.Activate(SCREEN_WIDTH, SCREEN_HEIGHT, 1, GL_ALL_BARRIER_BITS);
+		GLuint positionUniform = glGetUniformLocation(computeShader.program, "position");
+		glUniform2f(positionUniform, posx, posy);
+		std::cout << scale << std::endl;
+		GLuint scaleUniform = glGetUniformLocation(computeShader.program, "scale");
+		glUniform1d(scaleUniform, scale);
 
 		shader.Activate();
 		glBindTextureUnit(0, screenTexture);
