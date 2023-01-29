@@ -13,7 +13,6 @@ void getPosScale(InputHandler& inputHandler, double& posx, double& posy, double&
 	posx = inputHandler.posx;
 	posy = inputHandler.posy;
 	scale = inputHandler.scale;
-	//std::cout << "x: " << posx << "\t" << "y: " << posy << std::endl;
 }
 
 int main() {
@@ -31,7 +30,7 @@ int main() {
 	int SCREEN_WIDTH = 1440, SCREEN_HEIGHT = 900;
 
 
-	//glfwSetErrorCallback(errorCallbackFunction);
+	glfwSetErrorCallback(errorCallbackFunction);
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -106,10 +105,11 @@ int main() {
 		glClearColor(0.1, 0.05, 0.12, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		computeShader.Activate(SCREEN_WIDTH, SCREEN_HEIGHT, 1, GL_ALL_BARRIER_BITS);
+		computeShader.Activate(SCREEN_WIDTH / 8, SCREEN_HEIGHT / 8, 1, GL_ALL_BARRIER_BITS);
+
 		GLuint positionUniform = glGetUniformLocation(computeShader.program, "position");
-		glUniform2f(positionUniform, posx, posy);
-		std::cout << scale << std::endl;
+		glUniform2d(positionUniform, posx, posy);
+
 		GLuint scaleUniform = glGetUniformLocation(computeShader.program, "scale");
 		glUniform1d(scaleUniform, scale);
 

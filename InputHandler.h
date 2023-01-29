@@ -5,9 +5,9 @@
 
 class InputHandler {
 public:
-	float scale;
-	float posx;
-	float posy;
+	double scale;
+	double posx;
+	double posy;
 	bool LMBFirstPress;
 	bool LMBisPressed;
 	double LMBposx;

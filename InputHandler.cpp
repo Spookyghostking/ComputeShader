@@ -4,7 +4,6 @@
 static int scroll = 0;
 
 void scrollFunc(GLFWwindow* window, double xoffset, double yoffset) {
-	//std::cout << "x: " << xoffset << "\t" << "y: " << yoffset << std::endl;
 	scroll += (int)yoffset;
 }
 
@@ -37,7 +36,6 @@ void InputHandler::doInputs(GLFWwindow* window) {
 			glfwGetCursorPos(window, &newposx, &newposy);
 			diffx = newposx - LMBposx;
 			diffy = newposy - LMBposy;
-			//std::cout << "x: " << diffx << "\t" << "y: " << diffy << std::endl;
 			LMBposx = newposx;
 			LMBposy = newposy;
 			posx += 2 * diffx / (screenWidth * scale);

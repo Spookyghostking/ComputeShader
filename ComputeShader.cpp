@@ -40,7 +40,7 @@ void ComputeShader::compileErrors(GLuint shader, const char* type) {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE) {
 			glGetShaderInfoLog(shader, 1024, NULL, infolog);
-			std::cout << "SHADER COMPILE ERROR FOR " << type << ":\n" << infolog << std::endl;
+			std::cout << "SHADER COMPILE ERROR FOR COMPUTE " << type << ":\n" << infolog << std::endl;
 		}
 	}
 	else {
