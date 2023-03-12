@@ -6,72 +6,17 @@ uniform double scale;
 uniform dvec2 position;
 
 
-dvec2 mandelIterate(dvec2 num, dvec2 c) {
-    double real;
-    double imag;
-    real = num.x * num.x - num.y * num.y + c.x;
-    imag = 2 * num.x * num.y + c.y;
-    return dvec2(real, imag);
-}
+//dvec2 mandelIterate(dvec2 num, dvec2 c) {
+//    double real;
+//    double imag;
+//    real = num.x * num.x - num.y * num.y + c.x;
+//    imag = 2 * num.x * num.y + c.y;
+//    return dvec2(real, imag);
+//}
 
-double magnitude(dvec2 complex) {
-    return sqrt(complex.x * complex.x + complex.y * complex.y);
-}
-
-// Copied this from https://www.reddit.com/r/askmath/comments/3j6zr3/need_help_understanding_hsv_to_rgb_conversion/
-vec3 HSVtoRGB(vec3 hsv) {
-    float h = hsv.x;
-    float s = hsv.y;
-    float v = hsv.z;
-    float r = 0,g = 0,b = 0;
-
-    int i;
-    float f, p, q, t;
-    if( s == 0 ) {
-        // achromatic (grey)
-        r = g = b = v;
-        return vec3(r, g, b);
-    }
-    h /= 60;            // sector 0 to 5
-    i = int(floor(h));
-    f = h - i;          // factorial part of h
-    p = v * ( 1 - s );
-    q = v * ( 1 - s * f );
-    t = v * ( 1 - s * ( 1 - f ) );
-    switch( i ) {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
-        default:        // case 5:
-            r = v;
-            g = p;
-            b = q;
-            break;
-    }
-    return vec3(r, g, b);
-}
+//double magnitude(dvec2 complex) {
+//    return sqrt(complex.x * complex.x + complex.y * complex.y);
+//}
 
 void main() {
 	//gl_NumWorkGroups
@@ -83,28 +28,34 @@ void main() {
     //
     //gl_WorkGroupSize
 
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y + 4); // What is up with this?
 
-    double x = ((1.0 * gl_GlobalInvocationID.x) / (gl_WorkGroupSize.x * gl_NumWorkGroups.x / 2) - 1.0) / scale - position.x;
-	double y = (1.0 - (1.0 * gl_GlobalInvocationID.y) / (gl_WorkGroupSize.y * gl_NumWorkGroups.y / 2)) / scale - position.y;
+    double x = ((2.0 * gl_GlobalInvocationID.x) / (gl_WorkGroupSize.x * gl_NumWorkGroups.x) - 1.0) / scale - position.x;
+	double y = (1.0 - (2.0 * gl_GlobalInvocationID.y) / (gl_WorkGroupSize.y * gl_NumWorkGroups.y)) / scale - position.y;
 
 	dvec2 point_coords = dvec2(x, y);
 
     dvec2 mandelNum = dvec2(0.0f, 0.0f);
+    int sample_number = 50;
     int i = 0;
-    while (i <= 400) {
-        mandelNum = mandelIterate(mandelNum, point_coords);
-        if (magnitude(mandelNum) > 2.0f) {
+
+    while (i <= sample_number) {
+        //mandelNum = mandelIterate(mandelNum, point_coords);
+        mandelNum = dvec2(mandelNum.x * mandelNum.x - mandelNum.y * mandelNum.y + point_coords.x, 
+            2 * mandelNum.x * mandelNum.y + point_coords.y);
+        if (sqrt(mandelNum.x * mandelNum.x + mandelNum.y * mandelNum.y) > 2.0f) {
             break;
         }
         i++;
     }
+
     float color;
-    if (i < 240) {
-        color = 1.4f -  (1.0f * i) / 400;
+    if (i != sample_number + 1) {
+        color = (1.0f * (sample_number - i * 0.9)) / sample_number; 
     } else {
         color = 0.0f;
     }
+    
 
 	vec4 pixel = vec4(vec3(color), 1.0f);
 

@@ -49,6 +49,23 @@ void InputHandler::doInputs(GLFWwindow* window) {
 		glfwGetCursorPos(window, &LMBposx, &LMBposy);
 	}
 
+	bool RMBisPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS;
+	if (RMBisPressed) {
+		if (RMBFirstPress) {
+			RMBFirstPress = false;
+			//double posx, posy;
+			//glfwGetCursorPos(window, &posx, &posy);
+			std::cout << "x: " << posx << "\ty: " << posy << std::endl;
+
+		}
+	}
+	else {
+		if (!RMBFirstPress) {
+			RMBFirstPress = true;
+		}
+		//glfwGetCursorPos(window, &LMBposx, &LMBposy);
+	}
+
 	// camera zoom
 	while (scroll != 0) {
 		if (scroll > 0) {

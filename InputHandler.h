@@ -9,6 +9,7 @@ public:
 	double posx;
 	double posy;
 	bool LMBFirstPress;
+	bool RMBFirstPress;
 	bool LMBisPressed;
 	double LMBposx;
 	double LMBposy;
