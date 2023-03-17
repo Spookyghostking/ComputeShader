@@ -113,6 +113,9 @@ int main() {
 		GLuint scaleUniform = glGetUniformLocation(computeShader.program, "scale");
 		glUniform1d(scaleUniform, scale);
 
+		GLuint iterationsUniform = glGetUniformLocation(computeShader.program, "iteration_number");
+		glUniform1i(iterationsUniform, inputHandler.iterations);
+
 		shader.Activate();
 		glBindTextureUnit(0, screenTexture);
 		glUniform1i(glGetUniformLocation(shader.program, "screen"), 0);

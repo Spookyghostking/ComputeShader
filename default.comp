@@ -4,6 +4,7 @@ layout (rgba32f, binding = 0) uniform image2D screen;
 
 uniform double scale;
 uniform dvec2 position;
+uniform int iteration_number;
 
 
 //dvec2 mandelIterate(dvec2 num, dvec2 c) {
@@ -36,10 +37,10 @@ void main() {
 	dvec2 point_coords = dvec2(x, y);
 
     dvec2 mandelNum = dvec2(0.0f, 0.0f);
-    int sample_number = 50;
+    //int sample_number = 20;
     int i = 0;
 
-    while (i <= sample_number) {
+    while (i <= iteration_number) {
         //mandelNum = mandelIterate(mandelNum, point_coords);
         mandelNum = dvec2(mandelNum.x * mandelNum.x - mandelNum.y * mandelNum.y + point_coords.x, 
             2 * mandelNum.x * mandelNum.y + point_coords.y);
@@ -50,8 +51,8 @@ void main() {
     }
 
     float color;
-    if (i != sample_number + 1) {
-        color = (1.0f * (sample_number - i * 0.9)) / sample_number; 
+    if (i != iteration_number + 1) {
+        color = (1.0f * (iteration_number - i * 0.8)) / iteration_number; 
     } else {
         color = 0.0f;
     }
